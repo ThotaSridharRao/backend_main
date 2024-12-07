@@ -1,7 +1,0 @@
-fastapi
-uvicorn[gunicorn]
-tensorflow
-numpy
-Pillow
-requests
-python-dotenv
