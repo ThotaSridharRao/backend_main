@@ -13,6 +13,7 @@ app = FastAPI()
 origins = [
     "http://localhost",
     "http://localhost:3000",
+    "lokesh-kumar-potato-disease.netlify.app"
 ]
 app.add_middleware(
     CORSMiddleware,
