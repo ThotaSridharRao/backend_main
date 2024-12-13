@@ -59,6 +59,7 @@ cd Potato-disease-classification
       ```
 4. Install required Python packages:
     ```bash
+    cd api
     pip install -r requirements.txt
     ```
 
