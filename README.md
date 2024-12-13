@@ -71,7 +71,7 @@ cd Potato-disease-classification
     ```
 2. Install dependencies using Node.js:
     ```bash
-    npm install
+    npm install --from-lock-json
     ```
 3. Return to the root directory:
     ```bash
