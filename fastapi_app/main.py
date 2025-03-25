@@ -10,9 +10,7 @@ app = FastAPI()
 
 # CORS settings
 origins = [
-    "http://localhost",
-    "http://localhost:3000",
-    "https://potato-disease-classification-n7ab.onrender.com",
+    # "https://potato-disease-classification-n7ab.onrender.com",
     "https://potato-disease-classification-streamlit.onrender.com/"
 ]
 
