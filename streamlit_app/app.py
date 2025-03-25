@@ -5,7 +5,7 @@ from io import BytesIO
 import requests
 
 # Use Docker container name for internal communication
-endpoint = "https://potato-disease-classification-n7ab.onrender.com/"
+endpoint = "https://potato-disease-classification-n7ab.onrender.com/predict"
 CLASS_NAMES = ["Early Blight", "Late Blight", "Healthy"]
 
 def predict(image: np.ndarray):
