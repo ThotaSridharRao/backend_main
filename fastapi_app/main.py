@@ -8,9 +8,9 @@ from PIL import Image
 
 app = FastAPI()
 
-# CORS settings
 origins = [
-    # "https://potato-disease-classification-n7ab.onrender.com",
+    "http://localhost",
+    "http://localhost:3000",
     "https://potato-disease-classification-streamlit.onrender.com/"
 ]
 
@@ -28,7 +28,6 @@ CLASS_NAMES = ["Early Blight", "Late Blight", "Healthy"]
 async def ping():
     return "Hello I am alive"
 
-# ✅ Helper function to read image files
 def read_files_as_image(data) -> np.ndarray:
     """ Convert uploaded file bytes to a NumPy image array """
     image = np.array(Image.open(BytesIO(data)))
@@ -38,19 +37,18 @@ def read_files_as_image(data) -> np.ndarray:
 async def predict(file: UploadFile = File(...)):
     """ Handle image prediction directly """
     try:
-        # ✅ Read image and preprocess
+        # Read image and preprocess
         image = read_files_as_image(await file.read())
         img_batch = np.expand_dims(image, 0)
 
-        # ✅ Simulate model prediction for testing
-        prediction = np.random.rand(1, 3)  # Replace with actual model inference
+        # Simulating model prediction for testing (replace with your model's inference)
+        prediction = np.random.rand(1, 3)  # Replace with your actual model's output
         predicted_class = CLASS_NAMES[np.argmax(prediction)]
-        confidence = float(np.max(prediction))
+        confidence = np.max(prediction)
 
-        # ✅ Return the prediction in proper format
+        # ✅ Return in the expected format
         return {
-            "class": predicted_class,
-            "confidence": confidence
+            "predictions": prediction.tolist()
         }
 
     except Exception as e:
