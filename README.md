@@ -7,7 +7,6 @@ This repository contains a project for classifying potato diseases using a deep 
 Ensure you have the following installed on your system before proceeding:
 
 - **Python 3.9.20**
-- **Node.js 16.20.2**
 - **Docker**
 
 ## Setup Instructions
@@ -17,7 +16,6 @@ Ensure you have the following installed on your system before proceeding:
 Install the following software versions if not already installed:
 
 - **Python 3.9.20**: [Download Python 3.9.20](https://www.python.org/downloads/release/python-3920/)
-- **Node.js 16.20.2**: [Download Node.js 16.20.2](https://nodejs.org/)
 - **Docker**: [Download Docker](https://www.docker.com/products/docker-desktop/)
 
 Additionally, pull the TensorFlow Serving image using Docker:
@@ -63,22 +61,6 @@ cd Potato-disease-classification
     pip install -r requirements.txt
     ```
 
-#### Frontend (Node.js Environment)
-
-1. Navigate to the `frontend` directory:
-    ```bash
-    cd frontend
-    ```
-2. Install dependencies using Node.js:
-    ```bash
-    npm install --from-lock-json
-    npm audit fix
-    ```
-3. Return to the root directory:
-    ```bash
-    cd ..
-    ```
-
 ### 4. Configure and Run TensorFlow Serving
 
 Run TensorFlow Serving with Docker using the following command (ensure you run this in **Windows PowerShell as Administrator**):
@@ -100,20 +82,19 @@ docker run -t --rm -p 8502:8502 -v D:\ML-projects\Potato-disease:/Potato-disease
     python main.py
     ```
 
-### 6. Run the Frontend
+### 6. Run the Streamlit Frontend
 
-1. Navigate to the `frontend` directory:
+1. Navigate to the project’s root directory:
     ```bash
-    cd frontend
+    cd ..
     ```
-2. Start the React.js frontend:
+2. Start the Streamlit app:
     ```bash
-    npm start
+    streamlit run streamlit_app.py
     ```
 
 ## Notes for Other Users
 
 - **Administrator Privileges:** Ensure Docker commands are run in Windows PowerShell with Administrator privileges.
 - **Directory Adjustments:** Modify paths for volume mounting (`D:\ML-projects\Potato-disease`) to match your local system setup.
-- **Environments:** Always ensure the respective environments (Python and Node.js) are activated before running backend and frontend commands.
-
+- **Environments:** Always ensure the respective environments (Python) are activated before running backend and frontend commands.
