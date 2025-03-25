@@ -5,7 +5,7 @@ from io import BytesIO
 import requests
 
 # Use Docker container name for internal communication
-endpoint = "http://fastapi:8000/predict"
+endpoint = "https://potato-disease-classification-n7ab.onrender.com/"
 CLASS_NAMES = ["Early Blight", "Late Blight", "Healthy"]
 
 def predict(image: np.ndarray):
