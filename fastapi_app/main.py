@@ -24,35 +24,40 @@ app.add_middleware(
 
 CLASS_NAMES = ["Early Blight", "Late Blight", "Healthy"]
 
+# Load the saved model
+MODEL = tf.keras.models.load_model("./saved_models/1")
+
 @app.get("/ping")
 async def ping():
-    return "Hello I am alive"
+    return "Hello, I am alive!"
 
-def read_files_as_image(data) -> np.ndarray:
-    """ Convert uploaded file bytes to a NumPy image array """
-    image = np.array(Image.open(BytesIO(data)))
-    return image
+def read_file_as_image(data) -> np.ndarray:
+    """Convert uploaded file bytes to a NumPy image array."""
+    image = Image.open(BytesIO(data)).convert("RGB")
+    image = image.resize((256, 256))  # Resize to match model input size
+    return np.array(image)
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
-    """ Handle image prediction directly """
+    """Handle image prediction using the loaded model."""
     try:
-        # Read image and preprocess
-        image = read_files_as_image(await file.read())
-        img_batch = np.expand_dims(image, 0)
+        # Read and preprocess the image
+        image = read_file_as_image(await file.read())
+        img_batch = np.expand_dims(image, 0)  # Add batch dimension
 
-        # Simulating model prediction for testing (replace with your model's inference)
-        prediction = np.random.rand(1, 3)  # Replace with your actual model's output
-        predicted_class = CLASS_NAMES[np.argmax(prediction)]
-        confidence = np.max(prediction)
+        # Perform prediction
+        predictions = MODEL.predict(img_batch)
+        predicted_class = CLASS_NAMES[np.argmax(predictions)]
+        confidence = np.max(predictions)
 
-        # ✅ Return in the expected format
+        # Return the prediction result
         return {
-            "predictions": prediction.tolist()
+            "class": predicted_class,
+            "confidence": float(confidence)
         }
 
     except Exception as e:
         return {"error": str(e)}
 
 if __name__ == "__main__":
-    uvicorn.run(app, host='0.0.0.0', port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
