@@ -28,6 +28,11 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # API endpoint
+
+@app.route("/")
+def index():
+    return "Potato Disease Classifier is Running!"
+
 @app.route('/predict', methods=['POST'])
 def predict():
     if 'file' not in request.files:
