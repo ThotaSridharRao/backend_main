@@ -6,7 +6,7 @@ from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
 
 # Load model
-model = load_model('model\\potatoes.h5')  # Adjust the path as needed
+model = load_model('model/potatoes.h5')  # Adjust the path as needed
 # Configuration
 UPLOAD_FOLDER = 'D:\\Potato-disease-classification\\flask_app\\uploaded_images'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
