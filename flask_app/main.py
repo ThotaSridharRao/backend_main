@@ -7,7 +7,6 @@ from tensorflow.keras.preprocessing import image
 
 # Load model
 model = load_model('..\\potatoes.h5')  # Adjust the path as needed
-
 # Configuration
 UPLOAD_FOLDER = 'D:\\Potato-disease-classification\\flask_app\\uploaded_images'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
@@ -55,7 +54,7 @@ def predict():
 
         class_names = ['Early Blight', 'Late Blight', 'Healthy']
         label = class_names[predicted_class]
-        confidence = float(np.max(prediction))
+        confidence = float(np.max(prediction))*100
 
         return jsonify({
             'filename': filename,
