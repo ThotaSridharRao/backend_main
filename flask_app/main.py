@@ -1,68 +1,60 @@
 import os
-from flask import Flask, request, jsonify
-from werkzeug.utils import secure_filename
+import shutil
 import numpy as np
+from fastapi import FastAPI, File, UploadFile
+from fastapi.responses import JSONResponse
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
+import uvicorn
 
 # Load model
-model = load_model('model/potatoes.h5')  # Adjust the path as needed
-# Configuration
-UPLOAD_FOLDER = 'D:\\Potato-disease-classification\\flask_app\\uploaded_images'
+model = load_model('model/potatoes.h5')  # Adjust path if needed
+
+# Config
+UPLOAD_FOLDER = 'D:\\Potato-disease-classification\\fastapi_app\\uploaded_images'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
-app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+# Ensure upload folder exists
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# Preprocessing function
+app = FastAPI()
+
+def allowed_file(filename: str):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 def preprocess_image(img_path):
-    img = image.load_img(img_path, target_size=(256, 256))  # Adjust based on model input
+    img = image.load_img(img_path, target_size=(256, 256))
     img_array = image.img_to_array(img)
     img_array = np.expand_dims(img_array, axis=0)
     return img_array
 
-# Check file extension
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+@app.get("/")
+async def root():
+    return {"message": "Potato Disease Classifier is Running!"}
 
-# API endpoint
+@app.post("/predict")
+async def predict(file: UploadFile = File(...)):
+    if not allowed_file(file.filename):
+        return JSONResponse(status_code=400, content={"error": "Invalid file type"})
 
-@app.route("/")
-def index():
-    return "Potato Disease Classifier is Running!"
+    file_path = os.path.join(UPLOAD_FOLDER, file.filename)
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
 
-@app.route('/predict', methods=['POST'])
-def predict():
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file part'}), 400
+    img = preprocess_image(file_path)
+    prediction = model.predict(img)
+    predicted_class = np.argmax(prediction, axis=1)[0]
 
-    file = request.files['file']
+    class_names = ['Early Blight', 'Late Blight', 'Healthy']
+    label = class_names[predicted_class]
+    confidence = float(np.max(prediction)) * 100
 
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
+    return {
+        "filename": file.filename,
+        "prediction": label,
+        "confidence": confidence
+    }
 
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
-
-        # Predict
-        img = preprocess_image(filepath)
-        prediction = model.predict(img)
-        predicted_class = np.argmax(prediction, axis=1)[0]
-
-        class_names = ['Early Blight', 'Late Blight', 'Healthy']
-        label = class_names[predicted_class]
-        confidence = float(np.max(prediction))*100
-
-        return jsonify({
-            'filename': filename,
-            'prediction': label,
-            'confidence': confidence
-        })
-
-    return jsonify({'error': 'Invalid file type'}), 400
-
+# Add this to run with `python main.py`
 if __name__ == "__main__":
-    app.run(debug=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
