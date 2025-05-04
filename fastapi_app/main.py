@@ -67,4 +67,4 @@ async def predict(file: UploadFile = File(...)):
 
 # Add this to run with `python main.py`
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("fastapi_app.main:app", host="0.0.0.0", port=8000, reload=True)
