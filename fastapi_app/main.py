@@ -9,10 +9,10 @@ from tensorflow.keras.preprocessing import image
 import uvicorn
 
 # Load model
-model = load_model('model/potatoes.h5')  # Adjust path if needed
+model = load_model('model/potatoes.h5')  # Ensure this path is correct inside fastapi_app/model/
 
 # Config
-UPLOAD_FOLDER = 'D:\\Potato-disease-classification\\fastapi_app\\uploaded_images'
+UPLOAD_FOLDER = os.path.join(os.getcwd(), "uploaded_images")
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 # Ensure upload folder exists
@@ -23,7 +23,7 @@ app = FastAPI()
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://sixsem-project.onrender.com"], 
+    allow_origins=["https://sixsem-project.onrender.com"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -48,23 +48,30 @@ async def predict(file: UploadFile = File(...)):
         return JSONResponse(status_code=400, content={"error": "Invalid file type"})
 
     file_path = os.path.join(UPLOAD_FOLDER, file.filename)
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+    try:
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
 
-    img = preprocess_image(file_path)
-    prediction = model.predict(img)
-    predicted_class = np.argmax(prediction, axis=1)[0]
+        img = preprocess_image(file_path)
+        prediction = model.predict(img)
+        predicted_class = np.argmax(prediction, axis=1)[0]
 
-    class_names = ['Early Blight', 'Late Blight', 'Healthy']
-    label = class_names[predicted_class]
-    confidence = float(np.max(prediction)) * 100
+        class_names = ['Early Blight', 'Late Blight', 'Healthy']
+        label = class_names[predicted_class]
+        confidence = float(np.max(prediction)) * 100
 
-    return {
-        "filename": file.filename,
-        "prediction": label,
-        "confidence": confidence
-    }
+        return {
+            "filename": file.filename,
+            "prediction": label,
+            "confidence": confidence
+        }
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})
+    finally:
+        if os.path.exists(file_path):
+            os.remove(file_path)
 
-# Add this to run with `python main.py`
+# Entry point for local development
 if __name__ == "__main__":
-    uvicorn.run("fastapi_app.main:app", host="0.0.0.0", port=8000, reload=True)
+    filename = os.path.splitext(os.path.basename(__file__))[0]
+    uvicorn.run(f"{filename}:app", host="0.0.0.0", port=8000, reload=True)
