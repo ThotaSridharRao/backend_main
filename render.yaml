@@ -2,6 +2,6 @@ services:
   - type: web
     name: potato-model-api
     env: python
-    root: fastapi_app       # <-- render will cd into this folder
+    root: fastapi_app         # ← tell Render to cd into fastapi_app
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn main:app --host 0.0.0.0 --port 10000
